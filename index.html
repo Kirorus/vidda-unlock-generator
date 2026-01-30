@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vidda C2 / C3 — Code Generator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(160deg, #0f0f12 0%, #1a1a22 50%, #12121a 100%);
+      color: #e4e4e7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .card {
+      width: 100%;
+      max-width: 440px;
+      background: rgba(28, 28, 34, 0.85);
+      border: 1px solid rgba(63, 63, 70, 0.6);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .lang-switch {
+      display: flex;
+      background: rgba(39, 39, 42, 0.8);
+      border-radius: 10px;
+      padding: 4px;
+      border: 1px solid rgba(63, 63, 70, 0.5);
+    }
+    .lang-switch button {
+      padding: 0.5rem 0.85rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: #71717a;
+      cursor: pointer;
+      transition: color 0.2s, background 0.2s;
+    }
+    .lang-switch button:hover {
+      color: #a1a1aa;
+    }
+    .lang-switch button.active {
+      background: rgba(99, 102, 241, 0.25);
+      color: #a5b4fc;
+    }
+    h1 {
+      font-size: 1.375rem;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      font-size: 0.875rem;
+      color: #71717a;
+      margin: 0.25rem 0 0 0;
+    }
+    .hint {
+      font-size: 0.875rem;
+      color: #a1a1aa;
+      margin-bottom: 1.25rem;
+      line-height: 1.45;
+    }
+    label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #d4d4d8;
+    }
+    input {
+      width: 100%;
+      padding: 0.875rem 1.125rem;
+      font-size: 1rem;
+      font-family: "SF Mono", "Consolas", ui-monospace, monospace;
+      letter-spacing: 0.04em;
+      border: 1px solid rgba(63, 63, 70, 0.7);
+      border-radius: 10px;
+      background: rgba(39, 39, 42, 0.6);
+      color: #e4e4e7;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    input::placeholder {
+      color: #52525b;
+    }
+    .result-wrap {
+      margin-top: 1.5rem;
+      padding: 1.25rem 1.5rem;
+      background: rgba(39, 39, 42, 0.5);
+      border-radius: 12px;
+      border: 1px solid rgba(63, 63, 70, 0.5);
+    }
+    .result-label {
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #71717a;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .result-value {
+      font-family: "SF Mono", "Consolas", ui-monospace, monospace;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #a5b4fc;
+      word-break: break-all;
+      letter-spacing: 0.06em;
+    }
+    .result-value.empty {
+      color: #52525b;
+      font-weight: 400;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <header class="header">
+      <div>
+        <h1 id="title">Vidda C2 / C3 Code Generator</h1>
+        <p class="subtitle" id="subtitle">Unlock code for Vidda C2 and Vidda C3</p>
+      </div>
+      <div class="lang-switch">
+        <button type="button" data-lang="en" class="active" aria-pressed="true">EN</button>
+        <button type="button" data-lang="ru" aria-pressed="false">RU</button>
+      </div>
+    </header>
+
+    <p class="hint" id="hint">Enter the Chip ID from your projector to get the 6-character unlock code.</p>
+
+    <label for="chip-id" id="label-chip">Chip ID</label>
+    <input
+      id="chip-id"
+      type="text"
+      placeholder="e.g. 0x12345678"
+      autocomplete="off"
+      spellcheck="false"
+    />
+
+    <div class="result-wrap">
+      <div class="result-label" id="result-label">Code</div>
+      <div id="result" class="result-value empty">—</div>
+    </div>
+  </div>
+
+  <script>
+    const i18n = {
+      en: {
+        title: "Vidda C2 / C3 Code Generator",
+        subtitle: "Unlock code for Vidda C2 and Vidda C3",
+        hint: "Enter the Chip ID from your projector to get the 6-character unlock code.",
+        labelChip: "Chip ID",
+        placeholder: "e.g. 0x12345678",
+        resultLabel: "Code",
+        emptyResult: "—"
+      },
+      ru: {
+        title: "Генератор кода Vidda C2 / C3",
+        subtitle: "Код разблокировки для Vidda C2 и Vidda C3",
+        hint: "Введите Chip ID с вашего проектора, чтобы получить 6-символьный код.",
+        labelChip: "Chip ID",
+        placeholder: "Например: 0x12345678",
+        resultLabel: "Код",
+        emptyResult: "—"
+      }
+    };
+
+    const STORAGE_KEY = "vidda-generator-lang";
+
+    function getLang() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored === "ru" || stored === "en" ? stored : "en";
+    }
+
+    function setLang(lang) {
+      localStorage.setItem(STORAGE_KEY, lang);
+      document.documentElement.lang = lang === "ru" ? "ru" : "en";
+      document.title = i18n[lang].title + " — Vidda C2 / C3";
+
+      document.getElementById("title").textContent = i18n[lang].title;
+      document.getElementById("subtitle").textContent = i18n[lang].subtitle;
+      document.getElementById("hint").textContent = i18n[lang].hint;
+      document.getElementById("label-chip").textContent = i18n[lang].labelChip;
+      document.getElementById("chip-id").placeholder = i18n[lang].placeholder;
+      document.getElementById("result-label").textContent = i18n[lang].resultLabel;
+
+      document.querySelectorAll(".lang-switch button").forEach((btn) => {
+        const isActive = btn.dataset.lang === lang;
+        btn.classList.toggle("active", isActive);
+        btn.setAttribute("aria-pressed", isActive);
+      });
+
+      const resultEl = document.getElementById("result");
+      if (resultEl.classList.contains("empty")) {
+        resultEl.textContent = i18n[lang].emptyResult;
+      }
+    }
+
+    function encryptString(chipId) {
+      if (!chipId) return "";
+
+      const trimmed = String(chipId).trim();
+      if (trimmed.length < 8) return trimmed;
+
+      try {
+        const last8 = trimmed.slice(-8);
+        const num = BigInt("0x" + last8);
+        const step = (num + 514365010n) ^ 174714n;
+        const hex = step.toString(16);
+        return hex.slice(-6);
+      } catch (e) {
+        console.error("encrypt error:", e);
+        return "";
+      }
+    }
+
+    const input = document.getElementById("chip-id");
+    const resultEl = document.getElementById("result");
+
+    function update() {
+      const value = encryptString(input.value);
+      const lang = getLang();
+      resultEl.textContent = value || i18n[lang].emptyResult;
+      resultEl.classList.toggle("empty", !value);
+    }
+
+    input.addEventListener("input", update);
+    input.addEventListener("paste", update);
+
+    document.querySelectorAll(".lang-switch button").forEach((btn) => {
+      btn.addEventListener("click", () => setLang(btn.dataset.lang));
+    });
+
+    setLang(getLang());
+    input.focus();
+  </script>
+</body>
+</html>

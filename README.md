@@ -1,5 +1,20 @@
-# Password-generator
+# Vidda Unlock Generator
 
-Disclaimer: Not for VIDDA C2/C3 Projectors
+Генератор кода разблокировки для проекторов **Vidda C2** и **Vidda C3**. Одна статичная HTML-страница: вводишь Chip ID с проектора — получаешь 6-символьный код.
 
-This script is not associated with Hisense or VIDDA. It does not work with VIDDA C2 or C3 series projectors. The codes it produces are incapable of removing regional restrictions on any device. Do not attempt to use it for this purpose.
+## Как пользоваться
+
+1. Открой `index.html` в браузере (двойной клик или через меню «Открыть с помощью»).
+2. Введи **Chip ID** с вашего проектора (обычно 8 hex-символов, можно с префиксом `0x`).
+3. Код отображается ниже поля ввода сразу при вводе.
+
+Язык интерфейса переключается кнопками **EN** / **RU** в правом верхнем углу; выбор сохраняется в браузере.
+
+## Что внутри
+
+- Один файл `index.html` — всё в нём: разметка, стили и логика. Сервер не нужен.
+- Логика генерации: из последних 8 символов Chip ID (как hex) вычисляется код по фиксированной формуле; результат — последние 6 символов hex.
+
+## Disclaimer
+
+Этот инструмент не связан с Hisense или брендом VIDDA. Использование кодов для обхода региональных или иных ограничений — на ваше усмотрение и ответственность.
